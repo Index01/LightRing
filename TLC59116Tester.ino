@@ -25,30 +25,6 @@ void setup()
 Wire.begin();
 Serial.begin(9600);
 delay(2000);
-//
-//const char* registerName[][30] = 
-//  {
-//    "MODE1 ", "MODE2 ", "LEDPWM0 ", "LEDPWM1 ", "LEDPWM2 ", 
-//    "LEDPWM3 ", "LEDPWM4 ", "LEDPWM5 ", "LEDPWM6 ", "LEDPWM7 ", 
-//    "LEDPWM8 ", "LEDPWM9 ", "LEDPWM10 ", "LEDPWM11 ", "LEDPWM12 ", 
-//    "LEDPWM13 ", "LEDPWM14 ", "LEDPWM15 ", "GRPPWM ", "GRPFREQ ", 
-//    "LEDOUT0 ", "LEDOUT1", "SUBADDR1 ", "SUBADDR2 ", "SUBADDR3 ", 
-//    "ALLCALLADR ", "IREF ", "EFLAG1 ", "EFLAG2 "
-//  };
-//
-//for(int registerArrayIndex = 0; registerArrayIndex < sizeof(registerName)/sizeof(registerName[0]); registerArrayIndex++){
-//  Serial.println(registerArrayIndex);
-//  const char** arrayValue = registerName[registerArrayIndex];
-//  for(int arrayPointerRef=0; arrayValue[arrayPointerRef]; arrayPointerRef++){
-//    if(arrayValue[arrayPointerRef]== NULL){
-//      break; 
-//    }
-//    else {
-//      Serial.println(arrayValue[arrayPointerRef]);
-//      
-//    }
-//  }
-//}
 
 // read setup registers
 delay(1000);
@@ -115,75 +91,24 @@ void readAll(byte reqAddy) {
     Wire.requestFrom(ADDRESS, 64);
 
     for(int registerArrayIndex = 0; registerArrayIndex < sizeof(registerName)/sizeof(registerName[0]); registerArrayIndex++){
-      Serial.println(registerArrayIndex);
-      const char** arrayValue = registerName[registerArrayIndex];
-      for(int arrayPointerRef=0; arrayValue[arrayPointerRef]; arrayPointerRef++){
-        if(arrayValue[arrayPointerRef]== NULL){
-          break; 
-          
-        }
-        else {
-//            while(Wire.available())    // slave may send less than requested
-//              { 
-
-                byte c = Wire.read();    // receive a byte 
-                String hexStrOut = String(regNum, HEX);
-//              String binStrOut = String(c, BIN);
-
-                Serial.print("Reg num: ");                
-                Serial.print(arrayValue[arrayPointerRef]);      
-                Serial.println(c, BIN);    // print the character        
+       Serial.println(registerArrayIndex);
+       const char** arrayValue = registerName[registerArrayIndex];
+       for(int arrayPointerRef=0; arrayValue[arrayPointerRef]; arrayPointerRef++) {
+         if(arrayValue[arrayPointerRef]== NULL) {
+           break;
+         }
+         else {
+           byte c = Wire.read();                           // receive a byte 
+           String hexStrOut = String(regNum, HEX);
+           Serial.print("Reg num: ");                
+           Serial.print(arrayValue[arrayPointerRef]);      
+           Serial.println(c, BIN);                        // print the character        
             
-                regNum++;
-   
-//              }
-        }
-      }
+           regNum++;
+         }
+       }
     }
-  
-    
-//    switch(int(regNum)){
-////    if(hexStrOut=="1b"){
-//      case int(0x0):
-//        Serial.print("MODE1: ");
-//        Serial.println(c, BIN);    // print the character        
-//        break;
-//        
-//      case int(0x1):
-//        Serial.print("MODE2: ");
-//        Serial.println(c, BIN);    // print the character
-//        break;
-//
-//      case int(0x18):
-//        Serial.print("SUBADR1: ");
-//        Serial.println(c, BIN);    // print the character        
-//        break;
-//        
-//      case int(0x19):
-//        Serial.print("SUBADR2: ");
-//        Serial.println(c, BIN);    // print the character
-//        break;
-//
-//      case int(0x1A):
-//        Serial.print("SUBADR3: ");
-//        Serial.println(c, BIN);    // print the character  
-//        break;
-//
-//      case int(0x1B):
-//        Serial.print("ALLCALLADR: ");
-//        Serial.println(c, BIN);    // print the character
-//        break;
-//
-//    
-//      default:
-//        Serial.print("0x");
-//        Serial.print(regNum, HEX);
-//        Serial.print(" ReadVal: ");
-//        Serial.println(c, BIN);    // print the character
-//    }
-    
-
-  delay(100);
+    delay(100);
 }
 
 // WRITE FUNCTION ///////////////////////////////////////////////////////////////
