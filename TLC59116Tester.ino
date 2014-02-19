@@ -32,16 +32,18 @@ readAll(ADDRESS + 0b1);
 delay(2000);
 
 }
+
 // START CONDITION /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void startCondition(byte addy) {
-  byte retVal= 0;
-  String outVal= "1";
+  byte retVal= 1;
+  String outVal= "";
   if (retVal==0){
     outVal=String("ACK");
   }
   else {
    outVal=String("NACK"); 
   }
+
 //write to the driver  
   Serial.print("Driver address sent: ");
   Serial.println(byte(addy));
@@ -52,7 +54,7 @@ void startCondition(byte addy) {
 
 // CONTROL CONDITION REGISTER ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void controlConfig(byte controlVal) {
-  byte retVal= 0;
+  byte retVal= 1;
   String outVal= "";
 
   if (retVal==0){
@@ -71,11 +73,8 @@ void controlConfig(byte controlVal) {
    
 }
 
-// READ FUNCTION ////////////////////////////////////////////////////////////
+// READ FUNCTION /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void readAll(byte reqAddy) {
-  Serial.print("Read address sent: ");
-  Serial.println(ADDRESS, BIN);  // request ,x bits from slave device #2
-
   int regNum= 0;  
     
   const char* registerName[][30] = 
@@ -88,7 +87,10 @@ void readAll(byte reqAddy) {
     "ALLCALLADR ", "IREF ", "EFLAG1 ", "EFLAG2 "
     };
 
-    Wire.requestFrom(ADDRESS, 64);
+  Serial.print("Read address sent: ");
+  Serial.println(ADDRESS, BIN); 
+
+    Wire.requestFrom(ADDRESS, 32);                         // request ,x bits from driver 
 
     for(int registerArrayIndex = 0; registerArrayIndex < sizeof(registerName)/sizeof(registerName[0]); registerArrayIndex++){
        Serial.println(registerArrayIndex);
@@ -101,8 +103,8 @@ void readAll(byte reqAddy) {
            byte c = Wire.read();                           // receive a byte 
            String hexStrOut = String(regNum, HEX);
            Serial.print("Reg num: ");                
-           Serial.print(arrayValue[arrayPointerRef]);      
-           Serial.println(c, BIN);                        // print the character        
+           Serial.print(arrayValue[arrayPointerRef]);       
+           Serial.println(c, BIN);                      
             
            regNum++;
          }
@@ -111,9 +113,9 @@ void readAll(byte reqAddy) {
     delay(100);
 }
 
-// WRITE FUNCTION ///////////////////////////////////////////////////////////////
-void writeAll(byte setVal) {
-  byte inVal = byte(setVal);   
+// WRITE FUNCTION ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+void writeAll(byte setPWMVal) {
+  byte inVal = byte(setPWMVal);   
   byte retVal= 0;
   String outVal= "";
   
@@ -206,25 +208,23 @@ void writeAll(byte setVal) {
 
 }
 
-// MAIN LOOP /////////////////////////////////////////////////////////////////
+// MAIN LOOP //////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void loop(){
-  
-  for(int Cycle=0b00000000; Cycle<0b11111111; Cycle++){
+
+//Write registers  
+  for(int PWMRegistersValues=0b00000000; PWMRegistersValues<0b11111111; PWMRegistersValues++){
     startCondition(ALLCALL + 0B0);
- //   controlConfig(AUTO_INCREMENT_ALL_REGISTERS);    
-    writeAll(Cycle);  
+    controlConfig(AUTO_INCREMENT_ALL_REGISTERS);    
+    writeAll(PWMRegistersValues);  
    
-//   delay(100);
    
+//Read back registers
     startCondition(ADDRESS + 0B0);
     controlConfig(READ_CONTROL);
-    Wire.endTransmission();
     startCondition(ADDRESS + 0B1);
-    Wire.endTransmission();
     readAll(ADDRESS); 
-//    Wire.endTransmission();
-  
-  delay(100);
+
+    delay(100);
   }
   
   for(int c=0; c<10; c++){
