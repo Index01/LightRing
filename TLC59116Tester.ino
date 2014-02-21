@@ -75,6 +75,7 @@ void controlConfig(byte controlVal) {
 
 // READ FUNCTION /////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
 void readAll(byte reqAddy) {
+  byte inAddress = byte(reqAddy);
   int regNum= 0;  
     
   const char* registerName[][30] = 
@@ -88,27 +89,27 @@ void readAll(byte reqAddy) {
     };
 
   Serial.print("Read address sent: ");
-  Serial.println(ADDRESS, BIN); 
+  Serial.println(inAddress, BIN); 
 
     Wire.requestFrom(ADDRESS, 32);                         // request ,x bits from driver 
 
     for(int registerArrayIndex = 0; registerArrayIndex < sizeof(registerName)/sizeof(registerName[0]); registerArrayIndex++){
-       Serial.println(registerArrayIndex);
-       const char** arrayValue = registerName[registerArrayIndex];
-       for(int arrayPointerRef=0; arrayValue[arrayPointerRef]; arrayPointerRef++) {
-         if(arrayValue[arrayPointerRef]== NULL) {
-           break;
-         }
-         else {
-           byte c = Wire.read();                           // receive a byte 
-           String hexStrOut = String(regNum, HEX);
-           Serial.print("Reg num: ");                
-           Serial.print(arrayValue[arrayPointerRef]);       
-           Serial.println(c, BIN);                      
+      Serial.println(registerArrayIndex);
+      const char** arrayValue = registerName[registerArrayIndex];
+      for(int arrayPointerRef=0; arrayValue[arrayPointerRef]; arrayPointerRef++) {
+        if(arrayValue[arrayPointerRef]== NULL) {
+          break;
+        }
+        else {
+          byte c = Wire.read();                           // receive a byte 
+          String hexStrOut = String(regNum, HEX);
+          Serial.print("Reg num: ");                
+          Serial.print(arrayValue[arrayPointerRef]);       
+          Serial.println(c, BIN);                      
             
-           regNum++;
-         }
-       }
+          regNum++;
+        }
+      }
     }
     delay(100);
 }
@@ -126,21 +127,21 @@ void writeAll(byte setPWMVal) {
    outVal=String("NACK"); 
   }
 
-// try to set mode1/2
-//  byte mode1= AUTO_INCREMENT_ALL_REGISTERS;
-//  Wire.write(mode1);
-//  Serial.print("mode1: ");
-//  Serial.println(mode1);
+// set mode1/2
+  byte mode1= 0b10000001;
+  Wire.write(mode1);
+  Serial.print("mode1: ");
+  Serial.println(mode1);
 
   byte mode2= 0b10000001;
   Wire.write(mode2);
   Serial.print("mode2: ");
   Serial.println(+mode2);
   
-  byte mode3= 0b10000001;
-  Wire.write(mode3);
-  Serial.print("mode3: ");
-  Serial.println(+mode3);
+//  byte mode3= 0b10000001;
+//  Wire.write(mode3);
+//  Serial.print("mode3: ");
+//  Serial.println(+mode3);
 //  
 //  byte mode4= 0b00000000;
 //  Wire.write(mode4);
@@ -191,12 +192,12 @@ void writeAll(byte setPWMVal) {
     Wire.write(SUBADDR3);
     Serial.print("SUBADDR3: ");
     Serial.println(SUBADDR3);
-//
-//    byte ALLCALL= 0xFF;
-//    Wire.write(ALLCALL);
-//    Serial.print("ALLCALL: ");
-//    Serial.println(ALLCALL);
-//    
+
+    byte ALLCALLreg= 0xFF;
+    Wire.write(ALLCALLreg);
+    Serial.print("ALLCALL: ");
+    Serial.println(ALLCALLreg);
+    
     byte IREF= 0xFF;
     Wire.write(IREF);
     Serial.print("IREF: ");
@@ -204,7 +205,6 @@ void writeAll(byte setPWMVal) {
 
   
     Wire.endTransmission(); 
-//    delay(100);
 
 }
 
@@ -213,15 +213,15 @@ void loop(){
 
 //Write registers  
   for(int PWMRegistersValues=0b00000000; PWMRegistersValues<0b11111111; PWMRegistersValues++){
-    startCondition(ALLCALL + 0B0);
+    startCondition(ALLCALL + WRITE);
     controlConfig(AUTO_INCREMENT_ALL_REGISTERS);    
     writeAll(PWMRegistersValues);  
    
    
 //Read back registers
-    startCondition(ADDRESS + 0B0);
+    startCondition(ADDRESS + WRITE);
     controlConfig(READ_CONTROL);
-    startCondition(ADDRESS + 0B1);
+    startCondition(ADDRESS + READ);
     readAll(ADDRESS); 
 
     delay(100);
