@@ -1,4 +1,4 @@
 LightRing
 =========
 
-Source and CAD for modular component LightRing
+Source and Gerber files for modular component LightRing
