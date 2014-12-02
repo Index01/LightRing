@@ -114,7 +114,9 @@ void readAll(byte reqAddy) {
     delay(100);
 }
 
+
 // WRITE FUNCTION ////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////////
+// TODO: make write function more reliable, get some pointer action going. 
 void writeAll(byte setPWMVal) {
   byte inVal = byte(setPWMVal);   
   byte retVal= 0;
